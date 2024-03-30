@@ -8,10 +8,11 @@ multiline
 string";
 
 a/*  Multiline
-    print "orchid";
     Comments!
     arbitrary levels of nesting!
+
+    print "orchid";
+
    /* nes /*te /*//*/ */ d??/* */ */
 a
  */1+2
-

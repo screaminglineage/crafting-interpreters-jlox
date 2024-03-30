@@ -131,15 +131,14 @@ public class Scanner {
     }
 
     private void string() {
+        int old_line = line;
         while (peek() != '"' && !isAtEnd()) {
             if (peek() == '\n') line++;
             advance();
         }
 
         // TODO: causes an exception due to unterminated string
-        if (isAtEnd()) {
-            Lox.error(line, "Unterminated string.");
-        }
+        if (isAtEnd()) Lox.error(old_line, "Unterminated string.");
 
         advance();
 
@@ -172,6 +171,7 @@ public class Scanner {
     }
 
     private void multiline_comment() {
+        int old_line = line;
         int depth = 1;
         while(!isAtEnd() && depth > 0) {
             if (peek() == '*' && peekNext() == '/') depth--;
@@ -181,7 +181,7 @@ public class Scanner {
         }
 
         // TODO: causes an exception due to unterminated comment
-        if (isAtEnd()) Lox.error(line, "Unterminated comment.");
+        if (isAtEnd()) Lox.error(old_line, "Unterminated comment.");
         advance();
     }
 
