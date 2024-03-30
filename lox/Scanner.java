@@ -62,6 +62,8 @@ public class Scanner {
             case '/': {
                 if (match('/')) {
                     while (peek() != '\n' && !isAtEnd()) advance();
+                } else if (match('*')) {
+                    multiline_comment();
                 } else {
                     addToken(TokenType.SLASH);
                 }
@@ -134,6 +136,7 @@ public class Scanner {
             advance();
         }
 
+        // TODO: causes an exception due to unterminated string
         if (isAtEnd()) {
             Lox.error(line, "Unterminated string.");
         }
@@ -166,6 +169,20 @@ public class Scanner {
         TokenType token = keywords.get(text);
         if (token == null) token = TokenType.IDENTIFIER;
         addToken(token);
+    }
+
+    private void multiline_comment() {
+        int depth = 1;
+        while(!isAtEnd() && depth > 0) {
+            if (peek() == '*' && peekNext() == '/') depth--;
+            else if (peek() == '/' && peekNext() == '*') depth++;
+            if (peek() == '\n') line++;
+            advance();
+        }
+
+        // TODO: causes an exception due to unterminated comment
+        if (isAtEnd()) Lox.error(line, "Unterminated comment.");
+        advance();
     }
 
     private void addToken(TokenType type) {
