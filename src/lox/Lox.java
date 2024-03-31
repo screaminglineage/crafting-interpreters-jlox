@@ -1,3 +1,5 @@
+package lox;
+
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -51,7 +53,7 @@ public class Lox {
     }
 
     static void report(int line, String where, String message) {
-        System.out.printf("[%d] Error %s: %s\n", line, where, message);
+        System.out.println(STR."[\{line}] Error \{where}: \{message}");
         hadError = true;
     }
 }
