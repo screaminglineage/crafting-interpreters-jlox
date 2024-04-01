@@ -19,20 +19,30 @@ class Parser {
         }
     }
 
-    // comma - equality ("," equality)*
-
+//     ternary -
     private Expr expression() {
         return comma();
     }
 
     private Expr comma() {
-        Expr left = equality();
+        Expr left = ternary();
         while (match(TokenType.COMMA)) {
             Token operator = previous();
-            Expr right = equality();
+            Expr right = ternary();
             left = new Expr.Binary(left, operator, right);
         }
         return left;
+    }
+
+    private Expr ternary() {
+        Expr first = equality();
+        if (match(TokenType.QUESTION)) {
+            Expr middle = expression();
+            consume(TokenType.COLON, "Expect ':' after expression");
+            Expr last = equality();
+            return new Expr.Ternary(last, middle, first);
+        }
+        return first;
     }
 
     private Expr equality() {
@@ -112,7 +122,7 @@ class Parser {
 
     private Token consume(TokenType type, String message) {
         if (check(type)) return advance();
-        throw error(peek(), "message");
+        throw error(peek(), message);
     }
 
     private boolean check(TokenType type) {

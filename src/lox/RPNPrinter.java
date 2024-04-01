@@ -17,6 +17,9 @@ class RPNPrinter implements Expr.Visitor<String> {
     public String visitBinaryExpr(Expr.Binary expr) {
         return toRPN(expr.operator.lexeme, expr.left, expr.right);
     }
+    public String visitTernaryExpr(Expr.Ternary expr) {
+        return toRPN("ternary", expr.first, expr.middle, expr.last);
+    }
 
     @Override
     public String visitGroupingExpr(Expr.Grouping expr) {
@@ -36,9 +39,10 @@ class RPNPrinter implements Expr.Visitor<String> {
 
     int precedence(String operator) {
         return switch (operator) {
-            case "+", "-" -> 1;
-            case "*", "/" -> 2;
-            case "group" -> 3;
+            case "ternary" -> 1;
+            case "+", "-" -> 2;
+            case "*", "/" -> 3;
+            case "group" -> 4;
             default -> 0;
         };
     }
@@ -60,6 +64,7 @@ class RPNPrinter implements Expr.Visitor<String> {
 
         return builder.toString();
     }
+
 
     public static void main(String[] args) {
         Expr expression = new Expr.Binary(
