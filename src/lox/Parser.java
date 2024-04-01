@@ -19,8 +19,20 @@ class Parser {
         }
     }
 
+    // comma - equality ("," equality)*
+
     private Expr expression() {
-        return equality();
+        return comma();
+    }
+
+    private Expr comma() {
+        Expr left = equality();
+        while (match(TokenType.COMMA)) {
+            Token operator = previous();
+            Expr right = equality();
+            left = new Expr.Binary(left, operator, right);
+        }
+        return left;
     }
 
     private Expr equality() {
