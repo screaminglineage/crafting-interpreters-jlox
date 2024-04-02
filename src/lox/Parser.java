@@ -46,6 +46,11 @@ class Parser {
     }
 
     private Expr equality() {
+        if (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+            Token operator = previous();
+            Expr _ = comparison();
+            throw error(operator, "Expect left hand operand");
+        }
         Expr left = comparison();
         while (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
             Token operator = previous();
@@ -56,6 +61,11 @@ class Parser {
     }
 
     private Expr comparison() {
+        if (match(TokenType.GREATER, TokenType.LESS, TokenType.GREATER_EQUAL, TokenType.LESS_EQUAL)) {
+            Token operator = previous();
+            Expr _ = term();
+            throw error(operator, "Expect left hand operand");
+        }
         Expr left = term();
         while (match(TokenType.GREATER, TokenType.LESS, TokenType.GREATER_EQUAL, TokenType.LESS_EQUAL)) {
             Token operator = previous();
@@ -66,6 +76,11 @@ class Parser {
     }
 
     private Expr term() {
+        if (match(TokenType.PLUS, TokenType.MINUS)) {
+            Token operator = previous();
+            Expr _ = factor();
+            throw error(operator, "Expect left hand operand");
+        }
         Expr left = factor();
         while (match(TokenType.PLUS, TokenType.MINUS)) {
             Token operator = previous();
@@ -76,6 +91,11 @@ class Parser {
     }
 
     private Expr factor() {
+        if (match(TokenType.SLASH, TokenType.STAR)) {
+            Token operator = previous();
+            Expr _ = unary();
+            throw error(operator, "Expect left hand operand");
+        }
         Expr left = unary();
         while (match(TokenType.SLASH, TokenType.STAR)) {
             Token operator = previous();
