@@ -30,20 +30,24 @@ class Interpreter implements Expr.Visitor<Object> {
 
         return switch (expr.operator.type) {
             case TokenType.GREATER -> {
-                checkNumberOperands(expr.operator, left, right);
-                yield (double) left > (double) right;
+                if (isStringOperands(left, right)) yield stringCompare(left, right) > 0;
+                if (isNumberOperands(left, right)) yield (double) left > (double) right;
+                throw new RuntimeError(expr.operator, "Operands must both be numbers or strings");
             }
             case TokenType.GREATER_EQUAL -> {
-                checkNumberOperands(expr.operator, left, right);
-                yield (double) left >= (double) right;
+                if (isStringOperands(left, right)) yield stringCompare(left, right) >= 0;
+                if (isNumberOperands(left, right)) yield (double) left >= (double) right;
+                throw new RuntimeError(expr.operator, "Operands must both be numbers or strings");
             }
             case TokenType.LESS -> {
-                checkNumberOperands(expr.operator, left, right);
-                yield (double) left < (double) right;
+                if (isStringOperands(left, right)) yield stringCompare(left, right) < 0;
+                if (isNumberOperands(left, right)) yield (double) left < (double) right;
+                throw new RuntimeError(expr.operator, "Operands must both be numbers or strings");
             }
             case TokenType.LESS_EQUAL -> {
-                checkNumberOperands(expr.operator, left, right);
-                yield (double) left <= (double) right;
+                if (isStringOperands(left, right)) yield stringCompare(left, right) <= 0;
+                if (isNumberOperands(left, right)) yield (double) left <= (double) right;
+                throw new RuntimeError(expr.operator, "Operands must both be numbers or strings");
             }
             case TokenType.BANG_EQUAL -> {
                 checkNumberOperands(expr.operator, left, right);
@@ -52,6 +56,11 @@ class Interpreter implements Expr.Visitor<Object> {
             case TokenType.EQUAL_EQUAL -> {
                 checkNumberOperands(expr.operator, left, right);
                 yield isEqual(left, right);
+            }
+            case TokenType.PLUS -> {
+                if (isNumberOperands(left, right)) yield (double) left + (double) right;
+                if (isStringOperands(left, right)) yield left + (String) right;
+                throw new RuntimeError(expr.operator, "Operands must both be numbers or strings");
             }
             case TokenType.MINUS -> {
                 checkNumberOperands(expr.operator, left, right);
@@ -65,15 +74,7 @@ class Interpreter implements Expr.Visitor<Object> {
                 checkNumberOperands(expr.operator, left, right);
                 yield (double) left / (double) right;
             }
-            case TokenType.PLUS -> {
-                if (left instanceof Double && right instanceof Double) {
-                    yield (double) left + (double) right;
-                }
-                if (left instanceof String && right instanceof String) {
-                    yield left + (String) right;
-                }
-                throw new RuntimeError(expr.operator, "Operands must both be numbers or strings");
-            }
+
             default -> null; // Unreachable
         };
     }
@@ -91,6 +92,10 @@ class Interpreter implements Expr.Visitor<Object> {
         return a.equals(b);
     }
 
+    private int stringCompare(Object a, Object b) {
+        return ((String) a).compareTo((String) b);
+    }
+
     private void checkNumberOperand(Token operator, Object operand) {
         if (!(operand instanceof Double)) {
             throw new RuntimeError(operator, "Operand must be a number.");
@@ -101,4 +106,14 @@ class Interpreter implements Expr.Visitor<Object> {
         if (left instanceof Double && right instanceof Double) return;
         throw new RuntimeError(operator, "Operands must be a numbers.");
     }
+
+    private boolean isNumberOperands(Object left, Object right) {
+        return (left instanceof Double && right instanceof Double);
+    }
+
+    private boolean isStringOperands(Object left, Object right) {
+        return (left instanceof String && right instanceof String);
+    }
+
+
 }
