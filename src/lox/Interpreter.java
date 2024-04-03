@@ -1,6 +1,15 @@
 package lox;
 
 class Interpreter implements Expr.Visitor<Object> {
+    void interpret(Expr expression) {
+        try {
+            Object result = expression.accept(this);
+            System.out.println(stringify(result));
+        } catch (RuntimeError error) {
+            Lox.runtimeError(error);
+        }
+    }
+
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;
@@ -54,8 +63,9 @@ class Interpreter implements Expr.Visitor<Object> {
                 yield !isEqual(left, right);
             }
             case TokenType.EQUAL_EQUAL -> {
-                checkNumberOperands(expr.operator, left, right);
-                yield isEqual(left, right);
+                if (isStringOperands(left, right)) yield stringCompare(left, right) == 0;
+                if (isNumberOperands(left, right)) yield (double) left == (double) right;
+                throw new RuntimeError(expr.operator, "Operands must both be numbers or strings");
             }
             case TokenType.PLUS -> {
                 if (isNumberOperands(left, right)) yield (double) left + (double) right;
@@ -74,9 +84,17 @@ class Interpreter implements Expr.Visitor<Object> {
                 checkNumberOperands(expr.operator, left, right);
                 yield (double) left / (double) right;
             }
-
+            case TokenType.COMMA -> right;
             default -> null; // Unreachable
         };
+    }
+
+    @Override
+    public Object visitTernaryExpr(Expr.Ternary expr) {
+        Object falseValue = expr.falseBranch.accept(this);
+        Object trueValue = expr.trueBranch.accept(this);
+        Object predicate = expr.predicate.accept(this);
+        return (isTruthy(predicate)) ? trueValue : falseValue;
     }
 
 
@@ -90,6 +108,18 @@ class Interpreter implements Expr.Visitor<Object> {
         if (a == null && b == null) return true;
         if (a == null) return false;
         return a.equals(b);
+    }
+
+    private String stringify(Object object) {
+        if (object == null) return "nil";
+        if (object instanceof Double) {
+            String text = object.toString();
+            if (text.endsWith(".0")) {
+                text = text.substring(0, text.length() - 2);
+            }
+            return text;
+        }
+        return object.toString();
     }
 
     private int stringCompare(Object a, Object b) {
@@ -114,6 +144,4 @@ class Interpreter implements Expr.Visitor<Object> {
     private boolean isStringOperands(Object left, Object right) {
         return (left instanceof String && right instanceof String);
     }
-
-
 }

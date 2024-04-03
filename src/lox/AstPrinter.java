@@ -5,7 +5,7 @@ class AstPrinter implements Expr.Visitor<String> {
         return expr.accept(this);
     }
     public String visitTernaryExpr(Expr.Ternary expr) {
-        return parenthesize("ternary", expr.first, expr.middle, expr.last);
+        return parenthesize("ternary", expr.predicate, expr.trueBranch, expr.falseBranch);
     }
     @Override
     public String visitBinaryExpr(Expr.Binary expr) {

@@ -18,7 +18,7 @@ class RPNPrinter implements Expr.Visitor<String> {
         return toRPN(expr.operator.lexeme, expr.left, expr.right);
     }
     public String visitTernaryExpr(Expr.Ternary expr) {
-        return toRPN("ternary", expr.first, expr.middle, expr.last);
+        return toRPN("ternary", expr.predicate, expr.trueBranch, expr.falseBranch);
     }
 
     @Override

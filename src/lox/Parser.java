@@ -37,10 +37,11 @@ class Parser {
     private Expr ternary() {
         Expr first = equality();
         if (match(TokenType.QUESTION)) {
+            Token operatorQuestion = previous();
             Expr middle = expression();
-            consume(TokenType.COLON, "Expect ':' after expression");
+            Token operatorColon = consume(TokenType.COLON, "Expect ':' after expression");
             Expr last = equality();
-            return new Expr.Ternary(last, middle, first);
+            return new Expr.Ternary(first, operatorQuestion, middle, operatorColon, last);
         }
         return first;
     }

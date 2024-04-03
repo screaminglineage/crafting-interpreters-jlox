@@ -10,19 +10,23 @@ abstract class Expr {
   }
 
   static class Ternary extends Expr {
-    Ternary(Expr first, Expr middle, Expr last) {
-      this.first = first;
-      this.middle = middle;
-      this.last = last;
+    Ternary(Expr predicate, Token operatorQuestion, Expr trueBranch, Token operatorColon, Expr falseBranch) {
+      this.predicate = predicate;
+      this.trueBranch = trueBranch;
+      this.falseBranch = falseBranch;
+      this.operatorQuestion = operatorQuestion;
+      this.operatorColon = operatorColon;
     }
     @Override
     <R> R accept(Visitor<R> visitor) {
       return visitor.visitTernaryExpr(this);
     }
 
-    final Expr first;
-    final Expr middle;
-    final Expr last;
+    final Expr predicate;
+    final Expr trueBranch;
+    final Expr falseBranch;
+    final Token operatorQuestion;
+    final Token operatorColon;
   }
   static class Binary extends Expr {
     Binary(Expr left, Token operator, Expr right) {
