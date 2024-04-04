@@ -69,8 +69,9 @@ class Interpreter implements Expr.Visitor<Object> {
             }
             case TokenType.PLUS -> {
                 if (isNumberOperands(left, right)) yield (double) left + (double) right;
-                if (isStringOperands(left, right)) yield left + (String) right;
-                throw new RuntimeError(expr.operator, "Operands must both be numbers or strings");
+                if (left instanceof String) yield left + stringify(right);
+                if (right instanceof String) yield stringify(left) + right;
+                throw new RuntimeError(expr.operator, "Operands must both be numbers or at least one should be a string.");
             }
             case TokenType.MINUS -> {
                 checkNumberOperands(expr.operator, left, right);
@@ -82,6 +83,7 @@ class Interpreter implements Expr.Visitor<Object> {
             }
             case TokenType.SLASH -> {
                 checkNumberOperands(expr.operator, left, right);
+                if ((double) right == 0) throw new RuntimeError(expr.operator, "Cannot divide by 0.");
                 yield (double) left / (double) right;
             }
             case TokenType.COMMA -> right;
