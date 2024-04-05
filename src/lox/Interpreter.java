@@ -1,10 +1,13 @@
 package lox;
 
-class Interpreter implements Expr.Visitor<Object> {
-    void interpret(Expr expression) {
+import java.util.List;
+
+class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+    void interpret(List<Stmt> statements) {
         try {
-            Object result = expression.accept(this);
-            System.out.println(stringify(result));
+            for (Stmt stmt: statements) {
+                execute(stmt);
+            }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
@@ -17,12 +20,12 @@ class Interpreter implements Expr.Visitor<Object> {
 
     @Override
     public Object visitGroupingExpr(Expr.Grouping expr) {
-        return expr.expression.accept(this);
+        return evaluate(expr.expression);
     }
 
     @Override
     public Object visitUnaryExpr(Expr.Unary expr) {
-        Object value = expr.right.accept(this);
+        Object value = evaluate(expr.right);
         return switch (expr.operator.type) {
             case TokenType.MINUS -> {
                 checkNumberOperand(expr.operator, value);
@@ -34,8 +37,8 @@ class Interpreter implements Expr.Visitor<Object> {
     }
 
     public Object visitBinaryExpr(Expr.Binary expr) {
-        Object left = expr.left.accept(this);
-        Object right = expr.right.accept(this);
+        Object left = evaluate(expr.left);
+        Object right =evaluate(expr.right);
 
         return switch (expr.operator.type) {
             case TokenType.GREATER -> {
@@ -121,6 +124,28 @@ class Interpreter implements Expr.Visitor<Object> {
         }
         return object.toString();
     }
+
+    private Object evaluate(Expr expression) {
+        return expression.accept(this);
+    }
+
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+
 
 
 }
